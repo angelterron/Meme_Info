@@ -7,20 +7,23 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
-import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.GridLayoutManager;
 import android.view.LayoutInflater;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 public class ListadoFragment extends Fragment {
+    MemeTouchListener listener;
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         return inflater.inflate (R.layout.fragment_listado, container, false);
+    }
+    public void setMemeTouchListener(MemeTouchListener l){
+        listener = l;
     }
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -36,8 +39,8 @@ public class ListadoFragment extends Fragment {
         TypedArray imagenes = getResources().obtainTypedArray(R.array.images);
 
 
-        recyclerView.setLayoutManager (new LinearLayoutManager(getContext (), LinearLayout.VERTICAL, false));
-        recyclerView.setAdapter (new  ListadoAdapter (getContext (), texto,imagenes));
+        recyclerView.setLayoutManager (new GridLayoutManager(getContext (),2,GridLayoutManager.VERTICAL,false));
+        recyclerView.setAdapter (new  ListadoAdapter (getContext (), texto,imagenes,listener));
     }
 }
 
@@ -45,11 +48,13 @@ class ListadoAdapter extends RecyclerView.Adapter<ListadoViewHolder> {
     private Context context;
     private String[] myData;
     private TypedArray imagenes;
+    MemeTouchListener listener;
 
-    ListadoAdapter (Context context, String[] myData,TypedArray imagenes) {
+    ListadoAdapter (Context context, String[] myData,TypedArray imagenes, MemeTouchListener listener) {
         this.context = context;
         this.myData = myData;
         this.imagenes = imagenes;
+        this.listener = listener;
     }
 
     @NonNull
@@ -62,6 +67,9 @@ class ListadoAdapter extends RecyclerView.Adapter<ListadoViewHolder> {
     @Override
     public void onBindViewHolder (@NonNull ListadoViewHolder listadoViewHolder, int i) {
         listadoViewHolder.bind (myData[i],imagenes.getResourceId(i,-1));
+        listadoViewHolder.itemView.setOnClickListener((view)->{
+            if(listener != null) listener.onMemeTouched(i);
+        });
     }
 
     @Override
